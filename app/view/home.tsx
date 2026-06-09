@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native'
-import { Button } from 'react-native-paper'
+import { Button, Switch } from 'react-native-paper'
 import { useRouter } from 'expo-router'
 import { usePhotos } from '@/contexts/imageContext'
 import SettingsDialog from '@/components/SettingsDialog'
@@ -9,18 +9,21 @@ export default function HomeScreen () {
   const router = useRouter()
   const { photos } = usePhotos()
   const [isDialogVisible, setDialogVisible] = useState(false)
+  const [isEmoji, setEmoji] = useState(false)
 
   function handlePressGame (size: number) {
     const missingPhotos = (size * size / 2) - photos.length
 
-    if (missingPhotos < 1) {
-      router.push({
-        pathname: '/view/game',
-        params: { size: size }
-      })
-    } else {
+    if (missingPhotos >= 1 && !isEmoji) {
       alert(`Il manque ${missingPhotos} ${missingPhotos > 1 ? 'photos' : 'photo'}!`)
+      return
     }
+    router.push({
+      pathname: '/view/game',
+      params: { size: size, isEmoji: isEmoji ? 0 : 1 }
+    })
+
+
   }
 
   return (
@@ -78,6 +81,12 @@ export default function HomeScreen () {
         </Button>
       </View>
 
+      <View className="flex flex-row items-center justify-center gap-4">
+        <Text className={'text-4xl'}>🏞️</Text>
+        <Switch value={isEmoji} onValueChange={setEmoji}/>
+        <Text className={'text-4xl'}>😜</Text>
+      </View>
+
       <View
         className="bg-white dark:bg-slate-800 p-5 rounded-3xl mx-4 elevation-1 border border-slate-100 dark:border-slate-700">
         <Text
@@ -86,7 +95,7 @@ export default function HomeScreen () {
         </Text>
 
         <View className="flex-row justify-between gap-2">
-          {[2, 4, 8].map((item) => (
+          {[2, 4, 6].map((item) => (
             <Button
               key={item}
               mode="contained-tonal"

@@ -25,7 +25,7 @@ export default function GalleryScreen () {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsMultipleSelection: true,
-      selectionLimit: 10,
+      selectionLimit: 6 * 6 / 2,
       quality: 0.2
     })
 
@@ -36,7 +36,7 @@ export default function GalleryScreen () {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
-      <HeaderPic label={'Mes Captures'} isGame={false} />
+      <HeaderPic label={'Mes Captures'} isGame={false}/>
 
       <FlatList
         data={photos}

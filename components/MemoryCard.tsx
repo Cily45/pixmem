@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Dimensions, Image, Pressable, View } from 'react-native'
+import { Dimensions, Image, Pressable, Text } from 'react-native'
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -13,6 +13,7 @@ interface MemoryCardProps {
   size: number
   isWin: boolean
   onPress: (id: number) => void
+  isEmoji: boolean
 }
 
 export default function MemoryCard (props: MemoryCardProps) {
@@ -52,10 +53,15 @@ export default function MemoryCard (props: MemoryCardProps) {
         className={`absolute inset-0 rounded-2xl items-center justify-center border-2 border-white shadow-md
           ${props.memoCard.isMatched ? 'bg-emerald-100 border-emerald-400 opacity-60' : 'bg-white'}`}
       >
-        <Image
-          source={{ uri: props.memoCard.img }}
-          className={'w-full h-full rounded-2xl'}
-        />
+        {props.isEmoji && (
+          <Text className={'text-5xl text-center w-full h-full align-middle '}>{props.memoCard.img}</Text>
+        )}
+        {!props.isEmoji && (
+          <Image
+            source={{ uri: props.memoCard.img }}
+            className={'w-full h-full rounded-2xl'}
+          />
+        )}
       </Animated.View>
 
       <Animated.View

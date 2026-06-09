@@ -11,7 +11,7 @@ import { useAudioPlayer } from 'expo-audio'
 import { Accelerometer } from 'expo-sensors'
 
 export default function GameScreen () {
-  const { size } = useLocalSearchParams()
+  const { size, isEmoji } = useLocalSearchParams()
   const { settings } = useSettings()
   const [cards, setCards] = useState<MemoCard[]>([])
   const { photos } = usePhotos()
@@ -19,8 +19,9 @@ export default function GameScreen () {
   const router = useRouter()
   const page = useAudioPlayer(require('../../assets/sound/page-flip.mp3'))
   const winSound = useAudioPlayer(require('../../assets/sound/win.mp3'))
+  const noMatchSound = useAudioPlayer(require('../../assets/sound/no-match.mp3'))
   const [isWin, setIsWin] = useState(false)
-
+  const emojis = ['😅', '😭', '💜', '🐳', '🥶', '🤣', '😜', '🫠', '😬', '🫣', '💀', '🤯', '😱', '🥺', '🔮', '👾', '🫧', '🌊', '🐙', '🥵', '🧊', '❄️', '🤪', '😎', '🤡', '🚀', '🐛', '✨']
   const lastX = useRef<number>(0)
   const lastY = useRef<number>(0)
   const lastZ = useRef<number>(0)
@@ -67,6 +68,9 @@ export default function GameScreen () {
                   : card
               )
             )
+            noMatchSound.volume = settings.sound / 10
+            noMatchSound.seekTo(0)
+            noMatchSound.play()
           }, 1000)
         }
 
@@ -88,7 +92,9 @@ export default function GameScreen () {
     let id = 0
 
     const gridSize = sizeNumber * sizeNumber / 2
-    photos.slice(-gridSize).forEach((photo: string) => {
+
+    const items = (isEmoji === '0' ? emojis : photos).sort(() => Math.random() - 0.5)
+    items.slice(-gridSize).forEach((photo: string) => {
       cardsInit.push({
         id: id, isFlipped: false, isMatched: false, onPress (id: number): void {
         }, img: photo
@@ -101,12 +107,7 @@ export default function GameScreen () {
       id++
     })
 
-    const shuffle = (array: MemoCard[]) => {
-      array.sort(() => Math.random() - 0.5)
-    }
-
-    shuffle(cardsInit)
-    setCards(cardsInit)
+    setCards(cardsInit.sort(() => Math.random() - 0.5))
   }
 
   useEffect(() => {
@@ -142,7 +143,6 @@ export default function GameScreen () {
     initCards()
     return () => {
       setCards([])
-      winSound.remove()
       Vibration.cancel()
       setIsWin(false)
     }
@@ -163,7 +163,7 @@ export default function GameScreen () {
                   contentStyle={{ height: 56 }}
                   labelStyle={{ fontSize: 16, fontWeight: '600' }}
                   className="rounded-2xl"
-                  onPress={initCards}>Rejouer? </Button>
+                  onPress={initCards}>Rejouer?</Button>
 
           <Button icon={'arrow-left-bold'}
                   mode="contained-tonal"
@@ -182,7 +182,7 @@ export default function GameScreen () {
     <View className={`flex-row flex-wrap justify-center`}>
       {cards.map((card: MemoCard) => (
         <MemoryCard key={card.id} isWin={isWin} memoCard={card} size={sizeNumber}
-                    onPress={handleCardPress}></MemoryCard>
+                    onPress={handleCardPress} isEmoji={isEmoji === '0'}></MemoryCard>
       ))}
     </View>
   </ScrollView>)
